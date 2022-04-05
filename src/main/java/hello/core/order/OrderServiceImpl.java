@@ -6,7 +6,13 @@ import hello.core.discount.RateDiscountPolicy;
 import hello.core.member.Member;
 import hello.core.member.MemberRepository;
 import hello.core.member.MemoryMemberRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
+@Component //빈이 자동으로 등록 due to ComponentScan
+@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService{
 
     //private final MemberRepository memberRepository = new MemoryMemberRepository();
@@ -25,14 +31,33 @@ public class OrderServiceImpl implements OrderService{
     //OCP 위반 : FixDiscountPolicy를 RateDiscountPolicy로 변경하는 순간 OrderServiceImpl의 소스도 변경해야 함
     //private final DiscountPolicy discountPolicy = new FixDiscountPolicy();
     //private final DiscountPolicy discountPolicy = new RateDiscountPolicy();
-
+    
     private final MemberRepository memberRepository;
     private final DiscountPolicy discountPolicy;
 
-    public OrderServiceImpl(MemberRepository memberRepository, DiscountPolicy discountPolicy) {
-        this.memberRepository = memberRepository;
-        this.discountPolicy = discountPolicy;
-    }
+//    //필드 의존성 주입 : anti code, 유연하게 객체를 바꿀 수 없음( 외부 변경이 불가능해서 테스트 할 수 없음 ). setter 를 통해 정의 해주어야 함
+//    @Autowired private MemberRepository memberRepository;
+//    @Autowired private DiscountPolicy discountPolicy;
+//
+//    @Autowired // setter 의존성 주입
+//    public void setMemberRepository(MemberRepository memberRepository) {
+//        System.out.println("2. memberRepository = " + memberRepository);
+//        this.memberRepository = memberRepository;
+//    }
+//
+//    @Autowired // setter 의존성 주입
+//    public void setDiscountPolicy(DiscountPolicy discountPolicy) {
+//        System.out.println("2. discountPolicy = " + discountPolicy);
+//        this.discountPolicy = discountPolicy;
+//    }
+
+
+//    @Autowired //DI, 생성자가 한 개 있을 때는 스프링이 알아서 의존관계 주입 해줌
+//    public OrderServiceImpl(MemberRepository memberRepository, DiscountPolicy discountPolicy) {
+//        System.out.println("1. OrderServiceImpl.OrderServiceImpl");
+//        this.memberRepository = memberRepository;
+//        this.discountPolicy = discountPolicy;
+//    }
 
     @Override
     public Order createOrder(Long memberId, String itemName, int itemPrice) {
@@ -41,4 +66,10 @@ public class OrderServiceImpl implements OrderService{
 
         return new Order(memberId, itemName, itemPrice, discountPrice);
     }
+
+    //테스트 용도 : 싱글톤 깨지는지 확인
+    public MemberRepository getMemberRepository() {
+        return memberRepository;
+    }
+
 }
